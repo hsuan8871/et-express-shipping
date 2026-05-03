@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ET Express — 法國寄件服務</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0f0f0f;--white:#fafaf8;--accent:#e8b84b;--accent-dark:#c49a2f;
+  --g50:#f8f8f4;--g100:#f2f2ec;--g200:#e4e4dc;--g400:#9a9a8e;--g600:#5a5a50;
+  --green:#2d7a4f;--red:#c0392b;--orange:#d4700a;--blue:#1a5f8e;
+  --r:4px;--rlg:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black);min-height:100vh}
+
+.header{background:var(--black);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--white)}
+.logo em{color:var(--accent);font-style:normal}
+.lang-sw{display:flex;gap:4px}
+.lb{padding:3px 10px;border:1px solid rgba(255,255,255,.2);border-radius:20px;background:transparent;color:rgba(255,255,255,.5);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.lb.active{background:var(--accent);border-color:var(--accent);color:var(--black);font-weight:500}
+
+.prog-wrap{background:var(--black);padding:0 1.5rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.06)}
+.prog{display:flex;align-items:center;max-width:720px;margin:0 auto}
+.pi{display:flex;align-items:center;gap:6px}
+.pn{width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:rgba(255,255,255,.3);flex-shrink:0;transition:all .3s}
+.pn.active{border-color:var(--accent);background:var(--accent);color:var(--black)}
+.pn.done{border-color:var(--green);background:var(--green);color:white;font-size:13px}
+.pl{font-size:10px;color:rgba(255,255,255,.3);white-space:nowrap;transition:all .3s}
+.pl.active{color:var(--accent);font-weight:500}
+.pl.done{color:rgba(255,255,255,.5)}
+.pline{flex:1;height:1px;background:rgba(255,255,255,.08);margin:0 6px}
+
+.main{max-width:720px;margin:0 auto;padding:2rem 1.25rem 5rem}
+.panel{display:none;animation:fi .3s ease}
+.panel.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.step-head{margin-bottom:1.75rem}
+.step-title{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.3px;margin-bottom:4px}
+.step-sub{font-size:13px;color:var(--g600);line-height:1.6}
+.en-warning{display:inline-block;background:#fef2e8;border:1px solid #f0b060;border-radius:var(--r);padding:4px 10px;font-size:12px;color:#8a4800;margin-top:6px;font-weight:500}
+
+.card{background:white;border:1px solid var(--g200);border-radius:var(--rlg);padding:1.25rem 1.5rem;margin-bottom:.875rem}
+.card-title{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);margin-bottom:1rem}
+.card-notice{background:var(--g50);border-left:3px solid var(--accent);border-radius:0 var(--r) var(--r) 0;padding:10px 14px;margin-bottom:1rem;font-size:12.5px;color:var(--g600);line-height:1.5}
+
+.field{margin-bottom:.875rem}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--g600);margin-bottom:5px}
+.req{color:var(--accent-dark);margin-left:1px}
+.opt{font-weight:400;color:var(--g400);font-size:11px;margin-left:4px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+input[type=text],input[type=email],input[type=number],input[type=tel],select{width:100%;height:40px;padding:0 11px;border:1px solid var(--g200);border-radius:var(--r);font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--black);background:var(--g50);outline:none;transition:border-color .15s,background .15s}
+input:focus,select:focus{border-color:var(--black);background:white}
+input.err{border-color:var(--red)!important;background:#fff8f8}
+.hint{font-size:11px;color:var(--g400);margin-top:4px;line-height:1.5}
+.hint.warn{color:#8a4800}
+.hint.err{color:var(--red);display:none}
+.hint.err.show{display:block}
+
+.calc-box{background:var(--black);border-radius:var(--rlg);padding:1.1rem 1.25rem;margin-top:.875rem;display:none}
+.calc-box.show{display:block}
+.crow{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.05)}
+.crow:last-child{border:none}
+.crow.total{padding-top:10px;margin-top:4px;border-top:1px solid rgba(255,255,255,.12);border-bottom:none;color:white;font-weight:500}
+.crow .amt{color:white;font-weight:500}
+.crow.total .amt{font-size:20px;color:var(--accent)}
+.calc-warn{background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.2);border-radius:var(--r);padding:8px 12px;font-size:12px;color:#8a1a10;margin-top:.75rem}
+
+.addon-list{display:flex;flex-direction:column;gap:8px}
+.addon{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border:1px solid var(--g200);border-radius:var(--r);cursor:pointer;transition:all .2s;background:var(--g50)}
+.addon:hover,.addon.on{border-color:var(--black);background:white}
+.addon input[type=checkbox]{width:15px;height:15px;accent-color:var(--black);flex-shrink:0;margin-top:2px}
+.addon-info{flex:1}
+.addon-name{font-size:13.5px;font-weight:500}
+.addon-desc{font-size:11.5px;color:var(--g400);margin-top:2px}
+.addon-price{font-size:13.5px;font-weight:500;white-space:nowrap}
+
+.alert{padding:11px 14px;border-radius:var(--r);font-size:12.5px;line-height:1.6;margin-top:.875rem}
+.al-warn{background:#fff8e6;border:1px solid #f0d060;color:#7a5800}
+.al-red{background:#fef0ee;border:1px solid #f0a898;color:#8a2018}
+.al-blue{background:#e8f0f8;border:1px solid #90b8e0;color:#1a3a5e}
+.al-green{background:#e8f4ee;border:1px solid #80c8a0;color:#1a5a34}
+
+.prohi-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:.75rem}
+.pi-item{display:flex;align-items:flex-start;gap:7px;padding:8px 10px;border-radius:var(--r);font-size:12px;line-height:1.4}
+.pi-no{background:#fef0ee;color:#8a2018}
+.pi-ok{background:#e8f4ee;color:#1a5a34}
+.pi-caution{background:#fff8e6;color:#7a5800}
+.pi-icon{flex-shrink:0;font-size:14px}
+
+.ezstep{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--g100)}
+.ezstep:last-child{border-bottom:none}
+.ez-num{width:28px;height:28px;border-radius:50%;background:var(--black);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;margin-top:1px}
+.ez-title{font-size:14px;font-weight:500;margin-bottom:4px}
+.ez-desc{font-size:12.5px;color:var(--g600);line-height:1.6}
+.ez-tag{display:inline-block;font-size:10px;padding:1px 7px;border-radius:20px;margin-left:6px;vertical-align:middle}
+.ez-must{background:#fef0ee;color:#8a2018}
+.ez-once{background:#e8f0f8;color:#1a3a5e}
+.dl-btns{display:flex;gap:8px;margin-top:8px}
+.dl-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border:1px solid var(--g200);border-radius:20px;font-size:12px;text-decoration:none;color:var(--black);background:var(--g50);transition:all .2s}
+.dl-btn:hover{border-color:var(--black);background:white}
+
+.sum-block{background:var(--g50);border:1px solid var(--g200);border-radius:var(--r);padding:12px 14px;margin-bottom:8px}
+.sum-title{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--g400);margin-bottom:8px}
+.sum-row{display:flex;justify-content:space-between;font-size:13px;padding:2px 0}
+.sum-key{color:var(--g600)}
+.sum-val{font-weight:500;text-align:right;max-width:60%}
+.total-block{background:var(--black);border-radius:var(--rlg);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin:1rem 0}
+.total-block .lbl{color:rgba(255,255,255,.6);font-size:13px}
+.total-block .amt{color:var(--accent);font-size:24px;font-family:'DM Serif Display',serif}
+
+.terms-scroll{border:1px solid var(--g200);border-radius:var(--r);max-height:220px;overflow-y:auto;padding:12px 14px;font-size:12px;line-height:1.7;color:var(--g600);background:var(--g50)}
+.terms-scroll h4{font-size:12px;font-weight:500;color:var(--black);margin:10px 0 3px}
+.terms-scroll h4:first-child{margin-top:0}
+.terms-scroll ul{padding-left:15px}
+.terms-scroll ul li{margin-bottom:2px}
+.agree-row{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--g200);border-radius:var(--r);background:var(--g50);cursor:pointer;transition:all .2s;margin-top:.75rem}
+.agree-row:hover,.agree-row.on{border-color:var(--black);background:white}
+.agree-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--black);flex-shrink:0;margin-top:2px}
+.agree-text{font-size:13px;line-height:1.5;color:var(--g600)}
+
+.pay-box{background:#fffdf0;border:1px solid #e8d060;border-radius:var(--rlg);padding:1.1rem 1.25rem;margin-top:.875rem}
+.pay-title{font-size:13px;font-weight:500;margin-bottom:10px}
+.pay-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+.pay-row:last-child{border:none}
+.pay-key{color:var(--g600)}
+.pay-val{font-weight:500}
+
+.btn-row{display:flex;gap:10px;margin-top:1.5rem}
+.btn{padding:12px 24px;border-radius:var(--r);font-size:13.5px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;border:none}
+.btn-p{background:var(--black);color:white;flex:1}
+.btn-p:hover{background:#2a2a2a}
+.btn-p:disabled{background:var(--g200);color:var(--g400);cursor:not-allowed}
+.btn-s{background:transparent;color:var(--g600);border:1px solid var(--g200)}
+.btn-s:hover{border-color:var(--black);color:var(--black)}
+
+.success{text-align:center;padding:3rem 1rem}
+.success-icon{font-size:52px;margin-bottom:1.25rem}
+.success-title{font-family:'DM Serif Display',serif;font-size:30px;margin-bottom:.5rem}
+.success-sub{font-size:14px;color:var(--g600);line-height:1.7;margin-bottom:2rem;max-width:480px;margin-left:auto;margin-right:auto}
+.ref-box{background:var(--g50);border:1px solid var(--g200);border-radius:var(--rlg);padding:1.25rem;display:inline-block;text-align:left}
+.ref-label{font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.ref-num{font-size:22px;font-weight:500;letter-spacing:1px}
+
+.zh{display:block}.en{display:none}
+body.lang-en.zh{display:none}body.en .en{display:block}
+span.zh{display:inline}span.en{display:none}
+body.lang-en span.zh{display:none}body.lang-en span.en{display:inline}
+
+@media(max-width:580px){
+  .g2,.g3{grid-template-columns:1fr}
+  .prohi-grid{grid-template-columns:1fr}
+  .pl{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">ET<em>·</em>Express</div>
+  <div class="lang-sw">
+    <button class="lb active" onclick="setLang('zh')">中文</button>
+    <button class="lb" onclick="setLang('en')">EN</button>
+  </div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog">
+    <div class="pi"><div class="pn active" id="pn1">1</div><div class="pl active" id="pl1"><span class="zh">包裹</span><span class="en">Package</span></div></div>
+    <div class="pline"></div>
+    <div class="pi"><div class="pn" id="pn2">2</div><div class="pl" id="pl2"><span class="zh">寄件人</span><span class="en">Sender</span></div></div>
+    <div class="pline"></div>
+    <div class="pi"><div class="pn" id="pn3">3</div><div class="pl" id="pl3"><span class="zh">收件人</span><span class="en">Recipient</span></div></div>
+    <div class="pline"></div>
+    <div class="pi"><div class="pn" id="pn4">4</div><div class="pl" id="pl4"><span class="zh">進口須知</span><span class="en">Import Info</span></div></div>
+    <div class="pline"></div>
+    <div class="pi"><div class="pn" id="pn5">5</div><div class="pl" id="pl5"><span class="zh">確認付款</span><span class="en">Confirm</span></div></div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- S1: PACKAGE -->
+<div class="panel active" id="s1">
+  <div class="step-head">
+    <div class="step-title"><span class="zh">包裹資訊</span><span class="en">Package Details</span></div>
+    <div class="step-sub"><span class="zh">輸入重量與尺寸，系統自動計算計費重量。計費重量取實際重量與體積重量（長×寬×高÷5000）兩者較大值，最低 1kg。</span><span class="en">Enter weight and dimensions. Chargeable weight = max(actual weight, volumetric weight L×W×H÷5000), minimum 1kg.</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="zh">目的地與重量</span><span class="en">Destination & Weight</span></div>
+    <div class="field">
+      <label><span class="zh">目的地</span><span class="en">Destination</span><span class="req">*</span></label>
+      <select id="dest" onchange="onDestChange()">
+        <option value="">—</option>
+        <option value="TW">🇹🇼 台灣 Taiwan</option>
+        <option value="HK">🇭🇰 香港 Hong Kong</option>
+        <option value="JP">🇯🇵 日本 Japan</option>
+        <option value="SG">🇸🇬 新加坡 Singapore</option>
+      </select>
+    </div>
+    <div class="field">
+      <label><span class="zh">實際重量 (kg)</span><span class="en">Actual weight (kg)</span><span class="req">*</span></label>
+      <input type="number" id="aw" min="0.1" step="0.1" placeholder="e.g. 2.5" oninput="calc()">
+    </div>
+    <div class="field">
+      <label><span class="zh">包裹尺寸 (cm)</span><span class="en">Dimensions (cm)</span><span class="req">*</span></label>
+      <div class="g3">
+        <input type="number" id="dl" min="1" placeholder=" L" oninput="calc()">
+        <input type="number" id="dw" min="1" placeholder=" W" oninput="calc()">
+        <input type="number" id="dh" min="1" placeholder=" H" oninput="calc()">
+      </div>
+      <div class="hint"><span class="zh">體積重 = 長×寬×高 ÷ 5000 · 取兩者較大值計費 · 範例：20×30×5cm = 體積重 0.6kg，若實重 3kg 則以 3kg 計費</span><span class="en">Volumetric weight = L×W×H ÷ 5000 · Chargeable = max(actual, volumetric) · Example: 20×30×5cm = 0.6kg volumetric; if actual is 3kg, charged at 3kg</span></div>
+    </div>
+    <div class="calc-box" id="calcBox">
+      <div class="crow"><span class="zh">實際重量</span><span class="en">Actual weight</span><span class="amt" id="r-aw">—</span></div>
+      <div class="crow"><span class="zh">體積重量</span><span class="en">Volumetric weight</span><span class="amt" id="r-vw">—</span></div>
+      <div class="crow"><span><span class="zh">計費重量（取大值）</span><span class="en">Chargeable weight (max)</span></span><span class="amt" id="r-cw">—</span></div>
+      <div class="crow"><span class="zh">基本運費</span><span class="en">Base shipping</span><span class="amt" id="r-base">—</span></div>
+      <div class="crow" id="r-pu-row" style="display:none"><span class="zh">上門取件</span><span class="en">Door pickup</span><span class="amt">+€5.00</span></div>
+      <div class="crow" id="r-ins-row" style="display:none"><span class="zh">貨物保險</span><span class="en">Insurance</span><span class="amt">+€12.00</span></div>
+      <div class="crow total"><span class="zh">Total</span><span class="en">Total</span><span class="amt" id="r-total">—</span></div>
+    </div>
+    <div class="calc-warn" id="calcWarn" style="display:none">
+      <span class="zh">超過 20kg 上限，請直接聯繫我們報價。</span><span class="en">Over 20kg — please contact us for a custom quote.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="zh">加購選項</span><span class="en">Add-ons</span></div>
+    <div class="addon-list">
+      <label class="addon" id="ad-pu">
+        <input type="checkbox" id="chk-pu" onchange="toggleAddon('pu')">
+        <div class="addon-info">
+          <div class="addon-name"><span class="zh">上門取件服務</span><span class="en">Door pickup service</span></div>
+          <div class="addon-desc"><span class="zh">預設建議自行前往 DHL 合作 Point Relais 投遞（免費）</span><span class="en">Default: drop off at nearest DHL Point Relais (free)</span></div>
+        </div>
+        <div class="addon-price">+€5.00</div>
+      </label>
+      <label class="addon" id="ad-ins">
+        <input type="checkbox" id="chk-ins" onchange="toggleAddon('ins')">
+        <div class="addon-info">
+          <div class="addon-name"><span class="zh">貨物保險</span><span class="en">Shipment protection</span></div>
+          <div class="addon-desc"><span class="zh">賠付至申報價值上限 €1,200。未投保依 DHL 標準約 €26/kg。</span><span class="en">Covers declared value up to €1,200. Without: ~€26/kg per DHL standard.</span></div>
+        </div>
+        <div class="addon-price">+€12.00</div>
+      </label>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-p" onclick="go(2)"><span class="zh">下一步：寄件人資料 →</span><span class="en">Next: Sender info →</span></button>
+  </div>
+</div>
+
+<!-- S2: SENDER -->
+<div class="panel" id="s2">
+  <div class="step-head">
+    <div class="step-title"><span class="zh">寄件人資料</span><span class="en">Sender Information</span></div>
+    <div class="step-sub">
+      <span class="zh">資料將直接用於 DHL 出單。</span><span class="en">This information will be printed on the DHL shipment label.</span>
+      <span class="en-warning"><span class="zh">⚠️ 所有欄位請以英文填寫 — Please fill in English only</span><span class="en">⚠️ All fields must be in English only</span></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="zh">聯絡資訊</span><span class="en">Contact</span></div>
+    <div class="field"><label>Full Name<span class="req">*</span></label><input type="text" id="s-name" class="en-only" placeholder=""><div class="hint err" id="e-sname"><span class="zh">請以英文填寫 · English only</span><span class="en">English characters only</span></div></div>
+    <div class="field"><label>Company<span class="opt">(optional)</span></label><input type="text" id="s-co" class="en-only" placeholder=""></div>
+    <div class="g2">
+      <div class="field"><label>Email<span class="req">*</span></label><input type="email" id="s-email" placeholder=""></div>
+      <div class="field"><label>Phone<span class="req">*</span></label><input type="tel" id="s-phone" placeholder=""></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="zh">法國地址</span><span class="en">France Address</span></div>
+    <div class="field"><label>Address Line 1<span class="req">*</span></label><input type="text" id="s-a1" class="en-only" placeholder=""><div class="hint err" id="e-sa1"><span class="zh">請以英文填寫 · English only</span><span class="en">English only</span></div></div>
+    <div class="field"><label>Address Line 2<span class="opt">(optional)</span></label><input type="text" id="s-a2" class="en-only" placeholder="Apt, building, floor..."></div>
+    <div class="g2">
+      <div class="field"><label>Postal Code<span class="req">*</span></label><input type="text" id="s-zip" placeholder=""></div>
+      <div class="field"><label>City<span class="req">*</span></label><input type="text" id="s-city" class="en-only" placeholder=""><div class="hint err" id="e-scity"><span class="zh">請以英文填寫</span><span class="en">English only</span></div></div>
+    </div>
+    <div class="field"><label>Country</label><input type="text" value="France" disabled style="opacity:.45;cursor:not-allowed"></div>
+  </div>
+
+  <div class="card" id="pickup-card" style="display:none">
+    <div class="card-title"><span class="zh">上門取件資料</span><span class="en">Door Pickup Details</span></div>
+    <div class="card-notice"><span class="zh">取件資料可與寄件人不同（如辦公室/他人代為投遞），請確認取件聯絡人資訊。</span><span class="en">Pickup contact can differ from sender (e.g. office, colleague). Please confirm pickup contact details.</span></div>
+    <div class="field"><label><span class="zh">取件聯絡人姓名</span><span class="en">Pickup contact name</span><span class="req">*</span></label><input type="text" id="pu-name" class="en-only" placeholder="""><div class="hint err" id="e-puname"><span class="zh">請以英文填寫</span><span class="en">English only</span></div></div>
+    <div class="field"><label><span class="zh">取件聯絡電話</span><span class="en">Pickup contact phone</span><span class="req">*</span></label><input type="tel" id="pu-phone" placeholder=""></div>
+    <div class="field"><label><span class="zh">取件地址</span><span class="en">Pickup address</span><span class="req">*</span></label><input type="text" id="pu-a1" class="en-only" placeholder=""><div class="hint err" id="e-pua1"><span class="zh">請以英文填寫</span><span class="en">English only</span></div></div>
+    <div class="g2">
+      <div class="field"><label>Postal Code<span class="req">*</span></label><input type="text" id="pu-zip" placeholder="e.g. 92100"></div>
+      <div class="field"><label>City<span class="req">*</span></label><input type="text" id="pu-city" class="en-only" placeholder="e.g. Paris"></div>
+    </div>
+    <div class="field">
+      <label><span class="zh">取件時間偏好</span><span class="en">Preferred pickup time</span><span class="opt">(optional)</span></label>
+      <select id="pu-time">
+        <option value=""><span class="zh">不指定</span><span class="en">No preference</span></option>
+        <option value="morning"><span class="zh">上午 9:00–12:00</span><span class="en">Morning 9:00–12:00</span></option>
+        <option value="afternoon"><span class="zh">下午 12:00–18:00</span><span class="en">Afternoon 12:00–18:00</span></option>
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-s" onclick="go(1)">← <span class="zh">返回</span><span class="en">Back</span></button>
+    <button class="btn btn-p" onclick="go(3)"><span class="zh">下一步：收件人資料 →</span><span class="en">Next: Recipient →</span></button>
+  </div>
+</div>
+
+<!-- S3: RECIPIENT -->
+<div class="panel" id="s3">
+  <div class="step-head">
+    <div class="step-title"><span class="zh">收件人資料</span><span class="en">Recipient Information</span></div>
+    <div class="step-sub">
+      <span class="zh">資料將直接用於 DHL 出單。</span><span class="en">This information will be printed on the DHL shipment label.</span>
+      <span class="en-warning"><span class="zh">⚠️ 所有欄位請以英文填寫 — Please fill in English only</span><span class="en">⚠️ All fields must be in English only</span></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="zh">聯絡資訊</span><span class="en">Contact</span></div>
+    <div class="field"><label>Full Name<span class="req">*</span></label><input type="text" id="r-name" class="en-only" placeholder=""><div class="hint err" id="e-rname"><span class="zh">請以英文填寫</span><span class="en">English only</span></div></div>
+    <div class="field"><label>Company<span class="opt">(optional)</span></label><input type="text" id="r-co" class="en-only" placeholder=""></div>
+    <div class="g2">
+      <div class="field"><label>Email<span class="req">*</span></label><input type="email" id="r-email" placeholder=""></div>
+      <div class="field">
+        <label>Mobile Number<span class="req">*</span></label>
+        <input type="tel" id="r-phone" placeholder="">
+        <div class="hint warn"><span class="zh">須與 EZ WAY 實名認證手機號相同，以確保順利清關。尚未設定？<strong>下一步有詳細說明。</strong></span><span class="en">Must match EZ WAY registered mobile number for customs clearance. Not set up yet? <strong>See next step for instructions.</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="zh">收件地址</span><span class="en">Delivery Address</span></div>
+    <div class="field"><label>Country / Territory<span class="req">*</span></label><input type="text" id="r-ctry" disabled style="opacity:.6;cursor:not-allowed"></div>
+    <div class="field"><label>Address Line 1<span class="req">*</span></label><input type="text" id="r-a1" class="en-only" placeholder="Street address, building"><div class="hint err" id="e-ra1"><span class="zh">請以英文填寫</span><span class="en">English only</span></div></div>
+    <div class="field"><label>Address Line 2<span class="opt">(optional)</span></label><input type="text" id="r-a2" class="en-only" placeholder="District, floor, unit..."></div>
+    <div class="g3">
+      <div class="field"><label>Postal Code<span class="req">*</span></label><input type="text" id="r-zip" placeholder=""></div>
+      <div class="field"><label>City<span class="req">*</span></label><input type="text" id="r-city" class="en-only" placeholder=""></div>
+      <div class="field"><label>State / Province<span class="opt">(optional)</span></label><input type="text" id="r-state" class="en-only" placeholder=""></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-s" onclick="go(2)">← <span class="zh">返回</span><span class="en">Back</span></button>
+    <button class="btn btn-p" onclick="go(4)"><span class="zh">下一步：進口須知 →</span><span class="en">Next: Import info →</span></button>
+  </div>
+</div>
+
+<!-- S4: IMPORT INFO -->
+<div class="panel" id="s4">
+  <div class="step-head">
+    <div class="step-title"><span class="zh">進口須知</span><span class="en">Import Information</span></div>
+    <div class="step-sub"><span class="zh">請閱讀以下重要資訊並確認了解。</span><span class="en">Please read and confirm the following.</span></div>
+  </div>
+
+  <!-- TAIWAN SECTION -->
+  <div id="tw-section">
+    <div class="card">
+      <div class="card-title">EZ WAY 易利委 — <span class="zh">台灣海關必要程序</span><span class="en">Taiwan Customs Required</span></div>
+      <div class="alert al-red" style="margin-bottom:1rem">
+        <strong><span class="zh">⚠️ 2026 年 3 月起全面強制實施</span><span class="en">⚠️ Mandatory since March 2026</span></strong><br>
+        <span class="zh">所有進口台灣快遞包裹，收件人必須完成 EZ WAY 實名認證並及時確認申報，否則包裹將被扣留、無法通關，並從第 4 天起產生倉租費。</span>
+        <span class="en">All courier packages entering Taiwan require EZ WAY real-name registration. Failure to confirm in the app will result in customs hold and storage fees from day 4.</span>
+      </div>
+      <div class="ezstep">
+        <div class="ez-num">1</div>
+        <div>
+          <div class="ez-title"><span class="zh">下載 EZ WAY 易利委 App</span><span class="en">Download EZ WAY App</span> <span class="ez-tag ez-once"><span class="zh">只需一次</span><span class="en">One-time</span></span></div>
+          <div class="ez-desc"><span class="zh">搜尋「EZ WAY 易利委」或點以下連結，適用 iOS 及 Android。</span><span class="en">Search "EZ WAY" or use the links below. Available on iOS and Android.</span></div>
+          <div class="dl-btns">
+            <a class="dl-btn" href="https://apps.apple.com/tw/app/ez-way%E6%98%93%E5%88%A9%E5%A7%94/id1127781971" target="_blank">📱 App Store</a>
+            <a class="dl-btn" href="https://play.google.com/store/apps/details?id=com.tradevan.android.forms" target="_blank">📱 Google Play</a>
+          </div>
+        </div>
+      </div>
+      <div class="ezstep">
+        <div class="ez-num">2</div>
+        <div>
+          <div class="ez-title"><span class="zh">完成實名認證</span><span class="en">Complete registration</span> <span class="ez-tag ez-once"><span class="zh">只需一次</span><span class="en">One-time</span></span></div>
+          <div class="ez-desc">
+            <span class="zh">填寫姓名、身分證字號、手機號碼，選擇認證方式：<br><br>
+            <strong>電信認證（推薦）</strong>：本人門號申辦（中華/遠傳/台哥大/亞太/台灣之星），關閉 WiFi 以 4G/5G 行動網路驗證，約 30 分鐘內完成。<br><br>
+            <strong>簡訊認證</strong>：非本人門號或預付卡，需上傳身分證照片，約 1–3 個工作天。<br><br>
+            ⚠️ 請使用台灣境內網路操作。部分 VPN 可能被系統偵測而無法完成認證。</span>
+            <span class="en">Enter your name, National ID, and mobile number. Choose a method:<br><br>
+            <strong>Telecom verification (recommended)</strong>: For numbers registered in your name (major carriers). Turn off WiFi, use 4G/5G. Completes within ~30 minutes.<br><br>
+            <strong>SMS verification</strong>: For prepaid or non-personal numbers. Upload ID photo, wait 1–3 business days.<br><br>
+            ⚠️ Use a Taiwan IP address. Some VPNs may be detected and block registration.</span>
+          </div>
+        </div>
+      </div>
+      <div class="ezstep">
+        <div class="ez-num">3</div>
+        <div>
+          <div class="ez-title"><span class="zh">包裹抵台時確認申報</span><span class="en">Confirm when package arrives</span> <span class="ez-tag ez-must"><span class="zh">每次必做</span><span class="en">Every shipment</span></span></div>
+          <div class="ez-desc">
+            <span class="zh">包裹抵台時，手機會收到 EZ WAY 推播通知。請立即開啟 App，確認貨物資訊後點選「<strong>申報相符</strong>」。<br><br>⚠️ 請開啟推播通知。包裹有 <strong>3 天免費倉期</strong>，第 4 天起每天產生倉租費。</span>
+            <span class="en">You'll receive a push notification when your package arrives. Open the app, verify details, and tap "<strong>Confirm Declaration</strong>".<br><br>⚠️ Enable push notifications. Free storage is <strong>3 days</strong> — fees apply from day 4.</span>
+          </div>
+        </div>
+      </div>
+      <div class="ezstep">
+        <div class="ez-num">4</div>
+        <div>
+          <div class="ez-title"><span class="zh">手機號碼必須一致</span><span class="en">Mobile number must match</span> <span class="ez-tag ez-must"><span class="zh">重要</span><span class="en">Important</span></span></div>
+          <div class="ez-desc"><span class="zh">本表單填寫的收件人手機號碼，必須與 EZ WAY 實名認證所使用的手機號碼完全相同，海關才能比對放行。</span><span class="en">The recipient mobile number in this form must exactly match the EZ WAY registered number, or customs will be unable to clear the package.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="zh">台灣進口規定 & 關稅</span><span class="en">Taiwan Import Rules & Duties</span></div>
+      <div class="alert al-blue" style="margin-bottom:1rem">
+        <strong><span class="zh">免稅額：完稅價格 NT$2,000（約 €55）以下免稅</span><span class="en">Duty-free: taxable value under NT$2,000 (~€55)</span></strong><br>
+        <span class="zh">完稅價格 = 商品價值 + 運費 + 保險。超過則課關稅（依品項 0–12%）+ 營業稅 5%。<br>每人每半年最多 <strong>6 次</strong>免稅進口，第 7 次起不論金額都要課稅。所有稅款由收件人負擔。</span>
+        <span class="en">Taxable value = goods + shipping + insurance. Duties (0–12%) + 5% VAT apply above threshold.<br>Maximum <strong>6 duty-free imports</strong> per half-year per person. From the 7th, duties apply regardless of value. All taxes are the recipient's responsibility.</span>
+      </div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:.75rem;color:var(--g600)"><span class="zh">物品進口限制</span><span class="en">Item restrictions</span></div>
+      <div class="prohi-grid">
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><strong><span class="zh">酒精類</span><span class="en">Alcohol</span></strong><br><span class="zh">酒類、香水、古龍水、含酒精產品</span><span class="en">Beverages, perfume, cologne, alcohol-based products</span></span></div>
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><strong><span class="zh">肉類製品</span><span class="en">Meat products</span></strong><br><span class="zh">肉乾、肉鬆、肉類罐頭、加工肉品</span><span class="en">Jerky, floss, canned meat, processed meat</span></span></div>
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><strong><span class="zh">3C 電子產品</span><span class="en">Electronics / 3C</span></strong><br><span class="zh">手機、電腦、平板、相機等電子設備</span><span class="en">Phones, laptops, tablets, cameras</span></span></div>
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><strong><span class="zh">仿冒品</span><span class="en">Counterfeit goods</span></strong><br><span class="zh">仿冒名牌、侵權商品</span><span class="en">Fake brands, IP-infringing items</span></span></div>
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><strong><span class="zh">藥品 / 管制成分</span><span class="en">Medicines / controlled</span></strong><br><span class="zh">處方藥、CBD、褪黑激素等</span><span class="en">Prescription drugs, CBD, melatonin, etc.</span></span></div>
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><strong><span class="zh">獨立鋰電池 / 現金</span><span class="en">Batteries / cash</span></strong><br><span class="zh">非設備內建電池、現金、有價證券</span><span class="en">Standalone batteries, cash, securities</span></span></div>
+        <div class="pi-item pi-caution"><span class="pi-icon">⚠️</span><span><strong><span class="zh">零食 / 一般食品</span><span class="en">Snacks / food</span></strong><br><span class="zh">可寄，需如實申報，超額課稅由收件人承擔</span><span class="en">Allowed, must declare; taxes are recipient's responsibility</span></span></div>
+        <div class="pi-item pi-caution"><span class="pi-icon">⚠️</span><span><strong><span class="zh">保健品 / 維他命</span><span class="en">Supplements / vitamins</span></strong><br><span class="zh">限同品項 12 瓶、合計 36 瓶，不含管制成分</span><span class="en">Max 12 bottles/item, 36 total; no controlled ingredients</span></span></div>
+        <div class="pi-item pi-ok"><span class="pi-icon">✅</span><span><strong><span class="zh">衣服 / 鞋子 / 配件</span><span class="en">Clothing / accessories</span></strong><br><span class="zh">正品，個人自用數量</span><span class="en">Genuine items, personal use quantity</span></span></div>
+        <div class="pi-item pi-ok"><span class="pi-icon">✅</span><span><strong><span class="zh">化妝品 / 保養品</span><span class="en">Cosmetics / skincare</span></strong><br><span class="zh">非含酒精，個人用量</span><span class="en">Non-alcoholic, personal use</span></span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="zh">確認事項</span><span class="en">Confirmation</span></div>
+      <label class="agree-row" id="ez-ag">
+        <input type="checkbox" id="chk-ez" onchange="onEzAgreeChange()">
+        <div class="agree-text">
+          <span class="zh">我已了解 EZ WAY 易利委實名認證的必要性，確認收件人已完成或將在包裹寄出前完成 EZ WAY 認證，並了解台灣進口規定及禁寄物品清單。</span>
+          <span class="en">I understand the EZ WAY requirement. The recipient has completed (or will complete before shipment) EZ WAY registration. I have read and understood the Taiwan import regulations and prohibited items list.</span>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- OTHER DESTINATIONS SECTION -->
+  <div id="other-section" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="zh">目的地進口責任聲明</span><span class="en">Import Responsibility</span></div>
+      <div class="alert al-blue" style="margin-bottom:1rem">
+        <span class="zh">收件人須自行了解並遵守目的地國家的進口規定、關稅及申報程序。ET Express 不承擔目的地進口稅費，或因未申報、未符合當地規定而產生的任何責任。</span>
+        <span class="en">The recipient is responsible for understanding and complying with the import regulations, duties, and declaration procedures of the destination country. ET Express is not liable for import taxes or any consequences arising from non-compliance with local regulations.</span>
+      </div>
+      <div id="dest-specific-info"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="zh">禁寄物品（適用所有目的地）</span><span class="en">Prohibited Items (All Destinations)</span></div>
+      <div class="prohi-grid">
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><span class="zh">酒精類（含香水）</span><span class="en">Alcohol incl. perfume</span></span></div>
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><span class="zh">肉類製品</span><span class="en">Meat products</span></span></div>
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><span class="zh">3C 電子產品</span><span class="en">Electronics / 3C</span></span></div>
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><span class="zh">仿冒品</span><span class="en">Counterfeit goods</span></span></div>
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><span class="zh">藥品 / 管制成分</span><span class="en">Medicines / controlled</span></span></div>
+        <div class="pi-item pi-no"><span class="pi-icon">🚫</span><span><span class="zh">獨立鋰電池 / 現金</span><span class="en">Standalone batteries / cash</span></span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="zh">確認事項</span><span class="en">Confirmation</span></div>
+      <label class="agree-row" id="other-ag">
+        <input type="checkbox" id="chk-other" onchange="onOtherAgreeChange()">
+        <div class="agree-text">
+          <span class="zh">我已了解並同意：收件人將自行負責目的地的進口申報、關稅及任何相關法律責任。</span>
+          <span class="en">I understand and agree that the recipient is solely responsible for import declarations, duties, and any legal obligations in the destination country.</span>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-s" onclick="go(3)">← <span class="zh">返回</span><span class="en">Back</span></button>
+    <button class="btn btn-p" id="btn4" onclick="go(5)" disabled><span class="zh">下一步：確認訂單 →</span><span class="en">Next: Review →</span></button>
+  </div>
+</div>
+
+<!-- S5: CONFIRM -->
+<div class="panel" id="s5">
+  <div class="step-head">
+    <div class="step-title"><span class="zh">確認訂單</span><span class="en">Review & Submit</span></div>
+    <div class="step-sub"><span class="zh">請確認資料無誤，同意服務條款後提交。</span><span class="en">Review your details, agree to the Terms of Service, then submit.</span></div>
+  </div>
+
+  <div class="sum-block">
+    <div class="sum-title"><span class="zh">包裹</span><span class="en">Package</span></div>
+    <div class="sum-row"><span class="sum-key"><span class="zh">目的地</span><span class="en">Destination</span></span><span class="sum-val" id="sm-dest">—</span></div>
+    <div class="sum-row"><span class="sum-key"><span class="zh">計費重量</span><span class="en">Chargeable weight</span></span><span class="sum-val" id="sm-cw">—</span></div>
+    <div class="sum-row"><span class="sum-key"><span class="zh">基本運費</span><span class="en">Base shipping</span></span><span class="sum-val" id="sm-base">—</span></div>
+    <div class="sum-row" id="sm-pu-row" style="display:none"><span class="sum-key"><span class="zh">上門取件</span><span class="en">Door pickup</span></span><span class="sum-val">+€5.00</span></div>
+    <div class="sum-row" id="sm-ins-row" style="display:none"><span class="sum-key"><span class="zh">貨物保險</span><span class="en">Insurance</span></span><span class="sum-val">+€12.00</span></div>
+  </div>
+
+  <div class="sum-block">
+    <div class="sum-title"><span class="zh">寄件人</span><span class="en">Sender</span></div>
+    <div class="sum-row"><span class="sum-key">Name</span><span class="sum-val" id="sm-sn">—</span></div>
+    <div class="sum-row"><span class="sum-key">Address</span><span class="sum-val" id="sm-sa">—</span></div>
+    <div class="sum-row"><span class="sum-key">Email</span><span class="sum-val" id="sm-se">—</span></div>
+  </div>
+
+  <div class="sum-block" id="sm-pu-block" style="display:none">
+    <div class="sum-title"><span class="zh">取件資料</span><span class="en">Pickup Details</span></div>
+    <div class="sum-row"><span class="sum-key">Contact</span><span class="sum-val" id="sm-pun">—</span></div>
+    <div class="sum-row"><span class="sum-key">Phone</span><span class="sum-val" id="sm-pup">—</span></div>
+    <div class="sum-row"><span class="sum-key">Address</span><span class="sum-val" id="sm-pua">—</span></div>
+  </div>
+
+  <div class="sum-block">
+    <div class="sum-title"><span class="zh">收件人</span><span class="en">Recipient</span></div>
+    <div class="sum-row"><span class="sum-key">Name</span><span class="sum-val" id="sm-rn">—</span></div>
+    <div class="sum-row"><span class="sum-key">Address</span><span class="sum-val" id="sm-ra">—</span></div>
+    <div class="sum-row"><span class="sum-key">Mobile</span><span class="sum-val" id="sm-rp">—</span></div>
+  </div>
+
+  <div class="total-block">
+    <span class="lbl">Total</span>
+    <span class="amt" id="sm-total">—</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="zh">服務條款</span><span class="en">Terms of Service</span></div>
+    <div class="terms-scroll">
+      <h4>1. <span class="zh">申報責任</span><span class="en">Declaration Responsibility</span></h4>
+      <span class="zh">客戶須如實申報包裹內容物及申報價值（上限 €1,200）。因申報不實導致的海關查驗、扣押、罰款，由客戶自行承擔。</span>
+      <span class="en">The sender must accurately declare contents and value (max €1,200). Customs issues from inaccurate declarations are the sender's responsibility.</span>
+
+      <h4>2. <span class="zh">禁寄物品</span><span class="en">Prohibited Items</span></h4>
+      <ul>
+        <li><span class="zh">酒精類（含香水）、肉類製品、3C 電子產品</span><span class="en">Alcohol (incl. perfume), meat products, electronics/3C</span></li>
+        <li><span class="zh">藥品、含管制成分保健品（CBD、褪黑激素等）</span><span class="en">Medicines, supplements with controlled substances</span></li>
+        <li><span class="zh">仿冒品、獨立鋰電池、現金、危險品</span><span class="en">Counterfeit goods, standalone batteries, cash, dangerous goods</span></li>
+      </ul>
+
+      <h4>3. <span class="zh">賠償（包丟不包損）</span><span class="en">Compensation (Loss only)</span></h4>
+      <span class="zh">未投保：依 DHL 標準條款約 22 SDR/kg（約 €26/kg）。已投保：賠付至申報價值上限 €1,200。所有賠償以 DHL 實際核准金額為準，ET Express 不額外補償。包裝不當或易碎品損壞不在賠償範圍。</span>
+      <span class="en">Without insurance: ~22 SDR/kg (~€26/kg). With insurance: up to declared value, max €1,200. All compensation subject to DHL's actual assessment. ET Express provides no additional compensation. Damage from improper packaging is excluded.</span>
+
+      <h4>4. <span class="zh">退款政策</span><span class="en">Refund Policy</span></h4>
+      <span class="zh">未出單：退款扣 €5 手續費。已出單未投遞：退款扣 €5（需 DHL 取消確認）。已投遞：不退款。退款申請須於付款後 48 小時內書面提出，逾期不受理。</span>
+      <span class="en">Label not generated: refund minus €5. Label generated, not delivered: refund minus €5 (pending DHL cancellation). Delivered: no refund. Requests must be within 48 hours of payment.</span>
+
+      <h4>5. <span class="zh">時效</span><span class="en">Transit Time</span></h4>
+      <span class="zh">通常 2–4 個工作天。海關查驗、天災、節假日等因素導致的延誤不在 ET Express 責任範圍。</span>
+      <span class="en">Typically 2–4 business days. Delays from customs, natural disasters, or holidays are outside ET Express's liability.</span>
+
+      <h4>6. <span class="zh">付款</span><span class="en">Payment</span></h4>
+      <span class="zh">僅接受歐元 IBAN 銀行轉帳，先付後寄。</span>
+      <span class="en">EUR bank transfer (IBAN) only. Payment required before label generation.</span>
+
+      <h4>7. <span class="zh">EZ WAY 責任</span><span class="en">EZ WAY Responsibility</span></h4>
+      <span class="zh">收件人須自行完成 EZ WAY 實名認證並及時確認申報。因未完成 EZ WAY 程序導致的延誤、倉租費、退件，由客戶自行承擔。</span>
+      <span class="en">The recipient is responsible for completing EZ WAY registration and confirming declarations. ET Express is not liable for delays, storage fees, or returns from incomplete EZ WAY procedures.</span>
+
+      <h4>8. <span class="zh">進口稅</span><span class="en">Import Duties</span></h4>
+      <span class="zh">目的地進口稅、關稅及相關費用由收件人自行負擔，ET Express 不代墊亦不承擔。</span>
+      <span class="en">All import duties, taxes, and related fees in the destination country are the recipient's sole responsibility.</span>
+
+      <h4>9. <span class="zh">免責聲明</span><span class="en">Disclaimer</span></h4>
+      <span class="zh">ET Express 為代寄服務，不對 DHL 系統故障、海關政策變動、目的地進口限制，或任何超出 DHL 標準服務範圍的事項負責。</span>
+      <span class="en">ET Express is a parcel forwarding service and is not liable for DHL system failures, customs policy changes, import restrictions, or any matter beyond DHL's standard service scope.</span>
+    </div>
+
+    <label class="agree-row" id="ag-terms">
+      <input type="checkbox" id="chk-terms" onchange="onTermsChange()">
+      <div class="agree-text">
+        <span class="zh">我已閱讀並同意以上 ET Express 服務條款，確認所有申報資訊屬實。</span>
+        <span class="en">I have read and agree to the ET Express Terms of Service. All declared information is accurate.</span>
+      </div>
+    </label>
+  </div>
+
+  <div class="alert al-blue" style="margin-top:.875rem">
+    <span class="zh">📋 提交後將顯示完整付款資訊（IBAN、金額、訂單編號），請依指示完成匯款。確認收款後 1–2 個工作天內出單。</span>
+    <span class="en">📋 Full payment details (IBAN, amount, order reference) will be shown after submission. Labels generated within 1–2 business days after payment confirmed.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-s" onclick="go(4)">← <span class="zh">返回</span><span class="en">Back</span></button>
+    <button class="btn btn-p" id="submitBtn" onclick="submitOrder()" disabled><span class="zh">提交訂單</span><span class="en">Submit Order</span></button>
+  </div>
+</div>
+
+<!-- S6: SUCCESS -->
+<div class="panel" id="s6">
+  <div class="success">
+    <div class="success-icon">✅</div>
+    <div class="success-title"><span class="zh">訂單已提交！</span><span class="en">Order Submitted!</span></div>
+    <div class="success-sub">
+      <span class="zh">感謝您的訂單。請依付款說明完成匯款，確認收款後 1–2 個工作天內出單，追蹤號碼將寄送至您的 Email。</span>
+      <span class="en">Thank you. Please complete the bank transfer. We'll generate your label and send the tracking number by email within 1–2 business days after payment is confirmed.</span>
+    </div>
+    <div class="ref-box">
+      <div class="ref-label"><span class="zh">訂單編號</span><span class="en">Order Reference</span></div>
+      <div class="ref-num" id="ord-ref">—</div>
+    </div>
+    <div class="pay-box" style="margin-top:1.5rem;text-align:left">
+      <div class="pay-title">💳 <span class="zh">付款說明</span><span class="en">Payment</span></div>
+      <div class="pay-row"><span class="pay-key">Titulaire du compte</span><span class="pay-val">HEXYN GLOBAL TRADE SOLUTIONS</span></div>
+      <div class="pay-row"><span class="pay-key">IBAN</span><span class="pay-val">FR76 3000 4016 0800 0101 8628 418</span></div>
+      <div class="pay-row"><span class="pay-key">BIC</span><span class="pay-val">BNPAFRPPXXX</span></div>
+      <div class="pay-row"><span class="pay-key">Total</span><span class="pay-val" id="s-amt" style="color:var(--accent-dark);font-size:16px">—</span></div>
+      <div class="pay-row"><span class="pay-key"><span class="zh">備註欄</span><span class="en">Reference</span></span><span class="pay-val" id="s-ref">—</span></div>
+    </div>
+    <div class="alert al-warn" style="margin-top:1rem;text-align:left" id="ez-reminder">
+      <span class="zh">📱 提醒：請確認收件人已完成 EZ WAY 易利委實名認證，並開啟推播通知，在包裹抵台時立即確認「申報相符」。</span>
+      <span class="en">📱 Reminder: Ensure the recipient has completed EZ WAY registration and enabled push notifications to confirm declaration when the package arrives.</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+const RATES=[[1,55],[2,60],[3,70],[4,75],[5,80],[6,92],[7,104],[8,116],[9,128],[10,140],[11,152],[12,164],[13,176],[14,188],[15,200],[16,212],[17,224],[18,236],[19,248],[20,260]];
+const DESTS={TW:'Taiwan 台灣',HK:'Hong Kong 香港',JP:'Japan 日本',SG:'Singapore 新加坡'};
+const DEST_INFO={
+  HK:{zh:'香港為自由貿易港，大多數個人包裹免稅。惟部分商品（如菸酒、藥品）有特別規定，請自行查詢香港海關規定。',en:'Hong Kong is a free port — most personal packages are duty-free. Certain items (e.g. tobacco, alcohol, medicines) have specific restrictions. Please check Hong Kong Customs regulations.'},
+  JP:{zh:'個人進口包裹，關稅估算價值（商品價格×60%）低於 JPY 10,000 通常免稅。超過需繳進口消費稅（10%）及關稅。請自行查詢日本稅關規定。',en:'Personal imports are generally duty-free if assessed value (goods price × 60%) is below JPY 10,000. Above this threshold, consumption tax (10%) and customs duties may apply. Please check Japan Customs regulations.'},
+  SG:{zh:'新加坡個人進口快遞，申報價值低於 SGD 400 者，免繳進口 GST（2024 年起調整）。超過須繳 9% GST。請自行查詢新加坡海關規定。',en:'In Singapore, GST (9%) applies to all imports since Jan 2024 regardless of value. Please check Singapore Customs regulations for the latest requirements.'}
+};
+
+let S={dest:'',aw:0,vw:0,cw:0,base:0,pu:false,ins:false,total:0};
+let currentLang='zh';
+
+function getRate(w){
+  for(const[m,p]of RATES){if(w<=m)return p;}
+  return null;
+}
+
+function onDestChange(){
+  const d=document.getElementById('dest').value;
+  S.dest=d;
+  document.getElementById('r-ctry').value=DESTS[d]||'';
+  const tw=document.getElementById('tw-section');
+  const ot=document.getElementById('other-section');
+  const dsi=document.getElementById('dest-specific-info');
+  const btn4=document.getElementById('btn4');
+
+  // Reset checkboxes and button when destination changes
+  document.getElementById('chk-ez').checked=false;
+  document.getElementById('ez-ag').classList.remove('on');
+  document.getElementById('chk-other').checked=false;
+  document.getElementById('other-ag').classList.remove('on');
+  btn4.disabled=true;
+
+  if(d==='TW'){
+    tw.style.display='block';
+    ot.style.display='none';
+  } else if(d){
+    tw.style.display='none';
+    ot.style.display='block';
+    const info=DEST_INFO[d];
+    if(info){
+      dsi.innerHTML='<div class="alert al-blue" style="margin-top:.75rem">'+info[currentLang]+'</div>';
+    }
+  } else {
+    tw.style.display='none';
+    ot.style.display='none';
+  }
+  calc();
+}
+
+function calc(){
+  const aw=parseFloat(document.getElementById('aw').value)||0;
+  const l=parseFloat(document.getElementById('dl').value)||0;
+  const w=parseFloat(document.getElementById('dw').value)||0;
+  const h=parseFloat(document.getElementById('dh').value)||0;
+  const box=document.getElementById('calcBox');
+  const warn=document.getElementById('calcWarn');
+  if(!aw){box.classList.remove('show');warn.style.display='none';return;}
+  const vw=l&&w&&h?parseFloat((l*w*h/5000).toFixed(2)):0;
+  const cw=Math.ceil(Math.max(aw,vw,1)*2)/2;
+  if(cw>20){box.classList.remove('show');warn.style.display='block';return;}
+  warn.style.display='none';
+  const base=getRate(cw);
+  if(!base)return;
+  S.aw=aw;S.vw=vw;S.cw=cw;S.base=base;
+  const total=base+(S.pu?5:0)+(S.ins?12:0);
+  S.total=total;
+  document.getElementById('r-aw').textContent=aw.toFixed(1)+' kg';
+  document.getElementById('r-vw').textContent=vw?vw.toFixed(2)+' kg':'—';
+  document.getElementById('r-cw').textContent=cw.toFixed(1)+' kg';
+  document.getElementById('r-base').textContent='€'+base.toFixed(2);
+  document.getElementById('r-pu-row').style.display=S.pu?'flex':'none';
+  document.getElementById('r-ins-row').style.display=S.ins?'flex':'none';
+  document.getElementById('r-total').textContent='€'+total.toFixed(2);
+  box.classList.add('show');
+}
+
+function toggleAddon(t){
+  if(t==='pu'){
+    S.pu=document.getElementById('chk-pu').checked;
+    document.getElementById('ad-pu').classList.toggle('on',S.pu);
+    const pc=document.getElementById('pickup-card');
+    pc.style.display=S.pu?'block':'none';
+    if(S.pu){
+      if(!document.getElementById('pu-name').value)document.getElementById('pu-name').value=document.getElementById('s-name').value||'';
+      if(!document.getElementById('pu-phone').value)document.getElementById('pu-phone').value=document.getElementById('s-phone').value||'';
+      if(!document.getElementById('pu-a1').value)document.getElementById('pu-a1').value=document.getElementById('s-a1').value||'';
+      if(!document.getElementById('pu-zip').value)document.getElementById('pu-zip').value=document.getElementById('s-zip').value||'';
+      if(!document.getElementById('pu-city').value)document.getElementById('pu-city').value=document.getElementById('s-city').value||'';
+    }
+  } else {
+    S.ins=document.getElementById('chk-ins').checked;
+    document.getElementById('ad-ins').classList.toggle('on',S.ins);
+  }
+  calc();
+}
+
+// ── FIX: Use onchange on the <input> instead of onclick on <label>
+// The browser already toggles checked before onchange fires, so just read the value.
+
+function onEzAgreeChange(){
+  const checked=document.getElementById('chk-ez').checked;
+  document.getElementById('ez-ag').classList.toggle('on',checked);
+  document.getElementById('btn4').disabled=!checked;
+}
+
+function onOtherAgreeChange(){
+  const checked=document.getElementById('chk-other').checked;
+  document.getElementById('other-ag').classList.toggle('on',checked);
+  document.getElementById('btn4').disabled=!checked;
+}
+
+function onTermsChange(){
+  const checked=document.getElementById('chk-terms').checked;
+  document.getElementById('ag-terms').classList.toggle('on',checked);
+  document.getElementById('submitBtn').disabled=!checked;
+}
+
+function buildSummary(){
+  const total=S.base+(S.pu?5:0)+(S.ins?12:0);
+  document.getElementById('sm-dest').textContent=DESTS[S.dest]||'—';
+  document.getElementById('sm-cw').textContent=S.cw.toFixed(1)+' kg';
+  document.getElementById('sm-base').textContent='€'+S.base.toFixed(2);
+  document.getElementById('sm-pu-row').style.display=S.pu?'flex':'none';
+  document.getElementById('sm-ins-row').style.display=S.ins?'flex':'none';
+  document.getElementById('sm-total').textContent='€'+total.toFixed(2);
+  document.getElementById('sm-sn').textContent=document.getElementById('s-name').value||'—';
+  document.getElementById('sm-sa').textContent=[document.getElementById('s-a1').value,document.getElementById('s-city').value,'France'].filter(Boolean).join(', ');
+  document.getElementById('sm-se').textContent=document.getElementById('s-email').value||'—';
+  document.getElementById('sm-rn').textContent=document.getElementById('r-name').value||'—';
+  document.getElementById('sm-ra').textContent=[document.getElementById('r-a1').value,document.getElementById('r-city').value,DESTS[S.dest]].filter(Boolean).join(', ');
+  document.getElementById('sm-rp').textContent=document.getElementById('r-phone').value||'—';
+  const puBlock=document.getElementById('sm-pu-block');
+  puBlock.style.display=S.pu?'block':'none';
+  if(S.pu){
+    document.getElementById('sm-pun').textContent=document.getElementById('pu-name').value||'—';
+    document.getElementById('sm-pup').textContent=document.getElementById('pu-phone').value||'—';
+    document.getElementById('sm-pua').textContent=[document.getElementById('pu-a1').value,document.getElementById('pu-city').value,'France'].filter(Boolean).join(', ');
+  }
+}
+
+function showFieldErr(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.style.border='1px solid #c0392b';
+  el.style.background='#fff8f8';
+  el.focus();
+  setTimeout(()=>{el.style.border='';el.style.background='';},3000);
+}
+
+function validateStep(from){
+  const isEn=document.body.classList.contains('en');
+  if(from===1){
+    if(!document.getElementById('dest').value){
+      alert(isEn?'Please select a destination.':'請選擇目的地。');return false;
+    }
+    if(!document.getElementById('aw').value){
+      alert(isEn?'Please enter the actual weight.':'請輸入實際重量。');return false;
+    }
+    if(!document.getElementById('dl').value||!document.getElementById('dw').value||!document.getElementById('dh').value){
+      alert(isEn?'Please enter all package dimensions (L × W × H).':'請輸入包裹尺寸（長×寬×高）。');return false;
+    }
+    if(S.cw>20){alert(isEn?'Over 20kg — please contact us directly.':'超過 20kg，請直接聯繫我們。');return false;}
+    if(S.cw<=0){alert(isEn?'Please check weight and dimensions.':'請確認重量與尺寸。');return false;}
+    return true;
+  }
+  if(from===2){
+    const required=[['s-name','Full Name'],['s-email','Email'],['s-phone','Phone'],['s-a1','Address Line 1'],['s-zip','Postal Code'],['s-city','City']];
+    for(const[id,label]of required){
+      if(!document.getElementById(id).value.trim()){
+        showFieldErr(id);
+        alert((isEn?'Please fill in: ':'請填寫：')+label);
+        return false;
+      }
+    }
+    if(S.pu){
+      const puReq=[['pu-name','Pickup Contact Name'],['pu-phone','Pickup Phone'],['pu-a1','Pickup Address'],['pu-zip','Pickup Postal Code'],['pu-city','Pickup City']];
+      for(const[id,label]of puReq){
+        if(!document.getElementById(id).value.trim()){
+          showFieldErr(id);
+          alert((isEn?'Please fill in pickup detail: ':'請填寫取件資料：')+label);
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  if(from===3){
+    const required=[['r-name','Recipient Name'],['r-email','Recipient Email'],['r-phone','Mobile Number'],['r-a1','Address Line 1'],['r-zip','Postal Code'],['r-city','City']];
+    for(const[id,label]of required){
+      if(!document.getElementById(id).value.trim()){
+        showFieldErr(id);
+        alert((isEn?'Please fill in: ':'請填寫：')+label);
+        return false;
+      }
+    }
+    return true;
+  }
+  return true;
+}
+
+// ── FIX: go() now handles step 6 (success screen) without touching the progress bar
+function go(n){
+  const currentPanel=document.querySelector('.panel.active');
+  const current=parseInt(currentPanel.id.replace('s',''));
+  if(n>current&&!validateStep(current))return;
+
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+
+  // Only update progress bar for steps 1–5
+  if(n<=5){
+    for(let i=1;i<=5;i++){
+      const num=document.getElementById('pn'+i);
+      const lbl=document.getElementById('pl'+i);
+      if(i<n){num.className='pn done';num.textContent='✓';lbl.className='pl done';}
+      else if(i===n){num.className='pn active';num.textContent=i;lbl.className='pl active';}
+      else{num.className='pn';num.textContent=i;lbl.className='pl';}
+    }
+  }
+
+  if(n===5)buildSummary();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function genRef(){
+  const d=new Date();
+  return 'ET'+d.getFullYear().toString().slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+Math.floor(Math.random()*9000+1000);
+}
+
+function submitOrder(){
+  const ref=genRef();
+  const total=S.base+(S.pu?5:0)+(S.ins?12:0);
+  document.getElementById('ord-ref').textContent=ref;
+  document.getElementById('s-amt').textContent='€'+total.toFixed(2);
+  document.getElementById('s-ref').textContent=ref;
+  const ezr=document.getElementById('ez-reminder');
+  ezr.style.display=S.dest==='TW'?'block':'none';
+
+  const data={
+    ref,timestamp:new Date().toISOString(),
+    dest:S.dest,actualWeight:S.aw,volWeight:S.vw,chargeWeight:S.cw,
+    baseRate:S.base,pickup:S.pu,insurance:S.ins,total,
+    sName:document.getElementById('s-name').value,
+    sCo:document.getElementById('s-co').value,
+    sEmail:document.getElementById('s-email').value,
+    sPhone:document.getElementById('s-phone').value,
+    sAddr1:document.getElementById('s-a1').value,
+    sAddr2:document.getElementById('s-a2').value,
+    sPostal:document.getElementById('s-zip').value,
+    sCity:document.getElementById('s-city').value,
+    puName:S.pu?document.getElementById('pu-name').value:'',
+    puPhone:S.pu?document.getElementById('pu-phone').value:'',
+    puAddr1:S.pu?document.getElementById('pu-a1').value:'',
+    puPostal:S.pu?document.getElementById('pu-zip').value:'',
+    puCity:S.pu?document.getElementById('pu-city').value:'',
+    puTime:S.pu?document.getElementById('pu-time').value:'',
+    rName:document.getElementById('r-name').value,
+    rCo:document.getElementById('r-co').value,
+    rEmail:document.getElementById('r-email').value,
+    rPhone:document.getElementById('r-phone').value,
+    rAddr1:document.getElementById('r-a1').value,
+    rAddr2:document.getElementById('r-a2').value,
+    rPostal:document.getElementById('r-zip').value,
+    rCity:document.getElementById('r-city').value,
+    rState:document.getElementById('r-state').value,
+  };
+
+  fetch('https://script.google.com/macros/s/AKfycbz3z5DfXaVG1ZkeaNAVlZ3r_FPTaW8aMBbw1_e2wO0_NJwUUt9bhedR64rUTTKNH2TZ/exec',{
+    method:'POST',mode:'no-cors',body:JSON.stringify(data)
+  });
+  console.log('Order data:',data);
+
+  go(6);
+}
+
+// English-only input enforcement
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.en-only').forEach(input=>{
+    input.addEventListener('input',function(){
+      const v=this.value;
+      const cleaned=v.replace(/[^\x00-\x7F\s\-'.]/g,'');
+      if(cleaned!==v){
+        this.value=cleaned;
+        const errId='e-'+this.id.replace('-','');
+        const errEl=document.getElementById(errId);
+        if(errEl){errEl.classList.add('show');setTimeout(()=>errEl.classList.remove('show'),3000);}
+      }
+    });
+  });
+});
+
+function setLang(l){
+  currentLang=l;
+  document.body.className=l==='en'?'lang-en':'';
+  document.querySelectorAll('.lb').forEach((b,i)=>{
+    b.classList.toggle('active',(i===0&&l==='zh')||(i===1&&l==='en'));
+  });
+  // Refresh destination-specific info text if a non-TW destination is selected
+  if(S.dest&&S.dest!=='TW'){
+    const info=DEST_INFO[S.dest];
+    const dsi=document.getElementById('dest-specific-info');
+    if(info&&dsi){
+      dsi.innerHTML='<div class="alert al-blue" style="margin-top:.75rem">'+info[l]+'</div>';
+    }
+  }
+}
+</script>
+</body>
+</html>

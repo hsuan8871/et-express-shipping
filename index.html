@@ -626,8 +626,8 @@ body.lang-en span.zh{display:none}body.lang-en span.en{display:inline}
     <div class="success-icon">✅</div>
     <div class="success-title"><span class="zh">訂單已提交！</span><span class="en">Order Submitted!</span></div>
     <div class="success-sub">
-      <span class="zh">感謝您的訂單。請依付款說明完成匯款，確認收款後 1–2 個工作天內出單，追蹤號碼將寄送至您的 Email。</span>
-      <span class="en">Thank you. Please complete the bank transfer. We'll generate your label and send the tracking number by email within 1–2 business days after payment is confirmed.</span>
+      <span class="zh">感謝您的訂單。請依付款說明完成匯款，確認收款後 1–2 個工作天內出單，追蹤號碼將寄送至您的 Email。有任何問題，歡迎聯繫 etexpressfr@gmail.com </span>
+      <span class="en">Thank you. Please complete the bank transfer. We'll generate your label and send the tracking number by email within 1–2 business days after payment is confirmed. For any questions, please contact etexpressfr@gmail.com </span>
     </div>
     <div class="ref-box">
       <div class="ref-label"><span class="zh">訂單編號</span><span class="en">Order Reference</span></div>
@@ -954,7 +954,7 @@ function submitOrder(){
     rState:document.getElementById('r-state').value,
   };
 
-  fetch('https://script.google.com/macros/s/AKfycbz3z5DfXaVG1ZkeaNAVlZ3r_FPTaW8aMBbw1_e2wO0_NJwUUt9bhedR64rUTTKNH2TZ/exec',{
+  fetch('https://script.google.com/macros/s/AKfycbwh4tWhvVmZ13CWVhpPnt8yYVn4ehecEsAVDoGsQCBCI7ZTwl1Rb0mzJIYSIeiHaNE7/exec',{
     method:'POST',mode:'no-cors',body:JSON.stringify(data)
   });
   console.log('Order data:',data);

@@ -211,9 +211,9 @@ body.lang-en span.zh{display:none}body.lang-en span.en{display:inline}
     <div class="field">
       <label><span class="zh">包裹尺寸 (cm)</span><span class="en">Dimensions (cm)</span><span class="req">*</span></label>
       <div class="g3">
-        <input type="number" id="dl" min="1" placeholder=" L" oninput="calc()">
-        <input type="number" id="dw" min="1" placeholder=" W" oninput="calc()">
-        <input type="number" id="dh" min="1" placeholder=" H" oninput="calc()">
+        <input type="number" id="dl" min="1" placeholder="L" oninput="calc()">
+        <input type="number" id="dw" min="1" placeholder="W" oninput="calc()">
+        <input type="number" id="dh" min="1" placeholder="H" oninput="calc()">
       </div>
       <div class="hint"><span class="zh">體積重 = 長×寬×高 ÷ 5000 · 取兩者較大值計費 · 範例：20×30×5cm = 體積重 0.6kg，若實重 3kg 則以 3kg 計費</span><span class="en">Volumetric weight = L×W×H ÷ 5000 · Chargeable = max(actual, volumetric) · Example: 20×30×5cm = 0.6kg volumetric; if actual is 3kg, charged at 3kg</span></div>
     </div>
@@ -228,6 +228,27 @@ body.lang-en span.zh{display:none}body.lang-en span.en{display:inline}
     </div>
     <div class="calc-warn" id="calcWarn" style="display:none">
       <span class="zh">超過 20kg 上限，請直接聯繫我們報價。</span><span class="en">Over 20kg — please contact us for a custom quote.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="zh">申報資訊</span><span class="en">Customs Declaration</span></div>
+    <div class="field">
+      <label><span class="zh">內容物描述（英文）</span><span class="en">Contents description (English)</span><span class="req">*</span></label>
+      <input type="text" id="contents" class="en-only" placeholder="e.g. Clothing, Cosmetics, Books">
+      <div class="hint"><span class="zh">請以英文簡述包裹內容，例如：Clothing / Skincare / Snacks，用於海關申報。</span><span class="en">Brief English description for customs, e.g. Clothing / Skincare / Snacks.</span></div>
+      <div class="hint err" id="e-contents"><span class="zh">請以英文填寫 · English only</span><span class="en">English characters only</span></div>
+    </div>
+    <div class="field">
+      <label><span class="zh">申報價值（EUR）</span><span class="en">Declared value (EUR)</span><span class="req">*</span></label>
+      <input type="number" id="declared-val" min="1" max="1200" step="1" placeholder="" oninput="onDeclaredValInput()">
+      <div class="hint" id="declared-hint-tw" style="display:none">
+        <span class="zh">⚠️ 免稅額：完稅價格 NT$2,000（約 €55）以下免稅。完稅價格 = 商品價值 + 運費 + 保險，建議如實申報。</span>
+        <span class="en">⚠️ Duty-free threshold: taxable value under NT$2,000 (~€55). Taxable value = goods + shipping + insurance. Please declare accurately.</span>
+      </div>
+      <div class="hint err" id="e-declared" style="display:none">
+        <span class="zh">申報價值上限為 €1,200，請聯繫我們處理高價值包裹。</span><span class="en">Maximum declared value is €1,200. Please contact us for higher-value shipments.</span>
+      </div>
     </div>
   </div>
 
@@ -281,7 +302,7 @@ body.lang-en span.zh{display:none}body.lang-en span.en{display:inline}
   <div class="card">
     <div class="card-title"><span class="zh">法國地址</span><span class="en">France Address</span></div>
     <div class="field"><label>Address Line 1<span class="req">*</span></label><input type="text" id="s-a1" class="en-only" placeholder=""><div class="hint err" id="e-sa1"><span class="zh">請以英文填寫 · English only</span><span class="en">English only</span></div></div>
-    <div class="field"><label>Address Line 2<span class="opt">(optional)</span></label><input type="text" id="s-a2" class="en-only" placeholder="Apt, building, floor..."></div>
+    <div class="field"><label>Address Line 2<span class="opt">(optional)</span></label><input type="text" id="s-a2" class="en-only" placeholder=""></div>
     <div class="g2">
       <div class="field"><label>Postal Code<span class="req">*</span></label><input type="text" id="s-zip" placeholder=""></div>
       <div class="field"><label>City<span class="req">*</span></label><input type="text" id="s-city" class="en-only" placeholder=""><div class="hint err" id="e-scity"><span class="zh">請以英文填寫</span><span class="en">English only</span></div></div>
@@ -292,12 +313,12 @@ body.lang-en span.zh{display:none}body.lang-en span.en{display:inline}
   <div class="card" id="pickup-card" style="display:none">
     <div class="card-title"><span class="zh">上門取件資料</span><span class="en">Door Pickup Details</span></div>
     <div class="card-notice"><span class="zh">取件資料可與寄件人不同（如辦公室/他人代為投遞），請確認取件聯絡人資訊。</span><span class="en">Pickup contact can differ from sender (e.g. office, colleague). Please confirm pickup contact details.</span></div>
-    <div class="field"><label><span class="zh">取件聯絡人姓名</span><span class="en">Pickup contact name</span><span class="req">*</span></label><input type="text" id="pu-name" class="en-only" placeholder="""><div class="hint err" id="e-puname"><span class="zh">請以英文填寫</span><span class="en">English only</span></div></div>
+    <div class="field"><label><span class="zh">取件聯絡人姓名</span><span class="en">Pickup contact name</span><span class="req">*</span></label><input type="text" id="pu-name" class="en-only" placeholder=""><div class="hint err" id="e-puname"><span class="zh">請以英文填寫</span><span class="en">English only</span></div></div>
     <div class="field"><label><span class="zh">取件聯絡電話</span><span class="en">Pickup contact phone</span><span class="req">*</span></label><input type="tel" id="pu-phone" placeholder=""></div>
     <div class="field"><label><span class="zh">取件地址</span><span class="en">Pickup address</span><span class="req">*</span></label><input type="text" id="pu-a1" class="en-only" placeholder=""><div class="hint err" id="e-pua1"><span class="zh">請以英文填寫</span><span class="en">English only</span></div></div>
     <div class="g2">
-      <div class="field"><label>Postal Code<span class="req">*</span></label><input type="text" id="pu-zip" placeholder="e.g. 92100"></div>
-      <div class="field"><label>City<span class="req">*</span></label><input type="text" id="pu-city" class="en-only" placeholder="e.g. Paris"></div>
+      <div class="field"><label>Postal Code<span class="req">*</span></label><input type="text" id="pu-zip" placeholder=""></div>
+      <div class="field"><label>City<span class="req">*</span></label><input type="text" id="pu-city" class="en-only" placeholder=""></div>
     </div>
     <div class="field">
       <label><span class="zh">取件時間偏好</span><span class="en">Preferred pickup time</span><span class="opt">(optional)</span></label>
@@ -345,9 +366,9 @@ body.lang-en span.zh{display:none}body.lang-en span.en{display:inline}
     <div class="field"><label>Address Line 1<span class="req">*</span></label><input type="text" id="r-a1" class="en-only" placeholder="Street address, building"><div class="hint err" id="e-ra1"><span class="zh">請以英文填寫</span><span class="en">English only</span></div></div>
     <div class="field"><label>Address Line 2<span class="opt">(optional)</span></label><input type="text" id="r-a2" class="en-only" placeholder="District, floor, unit..."></div>
     <div class="g3">
-      <div class="field"><label>Postal Code<span class="req">*</span></label><input type="text" id="r-zip" placeholder=""></div>
-      <div class="field"><label>City<span class="req">*</span></label><input type="text" id="r-city" class="en-only" placeholder=""></div>
-      <div class="field"><label>State / Province<span class="opt">(optional)</span></label><input type="text" id="r-state" class="en-only" placeholder=""></div>
+      <div class="field"><label>Postal Code<span class="req">*</span></label><input type="text" id="r-zip" placeholder="e.g. 800"></div>
+      <div class="field"><label>City<span class="req">*</span></label><input type="text" id="r-city" class="en-only" placeholder="e.g. Kaohsiung City"></div>
+      <div class="field"><label>State / Province<span class="opt">(optional)</span></label><input type="text" id="r-state" class="en-only" placeholder="e.g. Kaohsiung"></div>
     </div>
   </div>
 
@@ -506,6 +527,8 @@ body.lang-en span.zh{display:none}body.lang-en span.en{display:inline}
     <div class="sum-row"><span class="sum-key"><span class="zh">基本運費</span><span class="en">Base shipping</span></span><span class="sum-val" id="sm-base">—</span></div>
     <div class="sum-row" id="sm-pu-row" style="display:none"><span class="sum-key"><span class="zh">上門取件</span><span class="en">Door pickup</span></span><span class="sum-val">+€5.00</span></div>
     <div class="sum-row" id="sm-ins-row" style="display:none"><span class="sum-key"><span class="zh">貨物保險</span><span class="en">Insurance</span></span><span class="sum-val">+€12.00</span></div>
+    <div class="sum-row"><span class="sum-key"><span class="zh">內容物</span><span class="en">Contents</span></span><span class="sum-val" id="sm-contents">—</span></div>
+    <div class="sum-row"><span class="sum-key"><span class="zh">申報價值</span><span class="en">Declared value</span></span><span class="sum-val" id="sm-dv">—</span></div>
   </div>
 
   <div class="sum-block">
@@ -674,6 +697,9 @@ function onDestChange(){
     tw.style.display='none';
     ot.style.display='none';
   }
+  // Show/hide TW duty-free hint
+  const twHint=document.getElementById('declared-hint-tw');
+  if(twHint) twHint.style.display=(d==='TW')?'block':'none';
   calc();
 }
 
@@ -724,6 +750,21 @@ function toggleAddon(t){
   calc();
 }
 
+function onDeclaredValInput(){
+  const val=parseFloat(document.getElementById('declared-val').value)||0;
+  const errEl=document.getElementById('e-declared');
+  const inp=document.getElementById('declared-val');
+  if(val>1200){
+    errEl.style.display='block';
+    inp.style.border='1px solid var(--red)';
+    inp.style.background='#fff8f8';
+  } else {
+    errEl.style.display='none';
+    inp.style.border='';
+    inp.style.background='';
+  }
+}
+
 // ── FIX: Use onchange on the <input> instead of onclick on <label>
 // The browser already toggles checked before onchange fires, so just read the value.
 
@@ -759,6 +800,9 @@ function buildSummary(){
   document.getElementById('sm-rn').textContent=document.getElementById('r-name').value||'—';
   document.getElementById('sm-ra').textContent=[document.getElementById('r-a1').value,document.getElementById('r-city').value,DESTS[S.dest]].filter(Boolean).join(', ');
   document.getElementById('sm-rp').textContent=document.getElementById('r-phone').value||'—';
+  document.getElementById('sm-contents').textContent=document.getElementById('contents').value||'—';
+  const dvVal=document.getElementById('declared-val').value;
+  document.getElementById('sm-dv').textContent=dvVal?'€'+parseFloat(dvVal).toFixed(2):'—';
   const puBlock=document.getElementById('sm-pu-block');
   puBlock.style.display=S.pu?'block':'none';
   if(S.pu){
@@ -791,6 +835,19 @@ function validateStep(from){
     }
     if(S.cw>20){alert(isEn?'Over 20kg — please contact us directly.':'超過 20kg，請直接聯繫我們。');return false;}
     if(S.cw<=0){alert(isEn?'Please check weight and dimensions.':'請確認重量與尺寸。');return false;}
+    if(!document.getElementById('contents').value.trim()){
+      showFieldErr('contents');
+      alert(isEn?'Please describe the package contents in English.':'請填寫包裹內容物描述（英文）。');return false;
+    }
+    const dv=parseFloat(document.getElementById('declared-val').value)||0;
+    if(!dv){
+      showFieldErr('declared-val');
+      alert(isEn?'Please enter the declared value.':'請填寫申報價值。');return false;
+    }
+    if(dv>1200){
+      showFieldErr('declared-val');
+      alert(isEn?'Declared value cannot exceed €1,200.':'申報價值不可超過 €1,200。');return false;
+    }
     return true;
   }
   if(from===2){
@@ -870,6 +927,8 @@ function submitOrder(){
     ref,timestamp:new Date().toISOString(),
     dest:S.dest,actualWeight:S.aw,volWeight:S.vw,chargeWeight:S.cw,
     baseRate:S.base,pickup:S.pu,insurance:S.ins,total,
+    contents:document.getElementById('contents').value,
+    declaredValue:parseFloat(document.getElementById('declared-val').value)||0,
     sName:document.getElementById('s-name').value,
     sCo:document.getElementById('s-co').value,
     sEmail:document.getElementById('s-email').value,
